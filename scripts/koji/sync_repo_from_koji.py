@@ -1,15 +1,15 @@
 #!/bin/env python
 from __future__ import print_function
-import argparse
-import re
-import os
-import sys
-import subprocess
-import glob
-import shutil
-import tempfile
-import atexit
 
+import argparse
+import atexit
+import glob
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
 from datetime import datetime
 
 USER_REPO_HTTPS = "https://koji.xcp-ng.org/repos/user/"
@@ -86,8 +86,6 @@ KOJI_ROOT_DIR = '/mnt/koji'
 
 KEY_ID = "3fd3ac9e"
 
-DEVNULL = open(os.devnull, 'w')
-
 def version_from_tag(tag):
     matches = re.match(r'v(\d+\.\d+)', tag)
     return matches.group(1)
@@ -119,7 +117,7 @@ def sign_rpm(rpm):
         subprocess.check_call(['koji', 'download-build', '--debuginfo', '--noprogress', '--rpm', rpm])
 
         # sign: requires a sign-rpm executable or alias in the PATH
-        subprocess.check_call(['sign-rpm', rpm], stdout=DEVNULL)
+        subprocess.check_call(['sign-rpm', rpm], stdout=subprocess.DEVNULL)
 
         # import signature
         subprocess.check_call(['koji', 'import-sig', rpm])
@@ -185,8 +183,8 @@ def write_repo(tag, dest_dir, tmp_root_dir, offline=False):
         paths.append(os.path.join(path_to_tmp_repo, 'Source'))
     for path in paths:
         print("\n-- Generate repodata for %s" % path)
-        subprocess.check_call(['createrepo_c', path], stdout=DEVNULL)
-        subprocess.check_call(['sign-file', os.path.join(path, 'repodata', 'repomd.xml')], stdout=DEVNULL)
+        subprocess.check_call(['createrepo_c', path], stdout=subprocess.DEVNULL)
+        subprocess.check_call(['sign-file', os.path.join(path, 'repodata', 'repomd.xml')], stdout=subprocess.DEVNULL)
 
     # Synchronize to our final repository:
     # - add new RPMs
@@ -380,7 +378,7 @@ def main():
                     subprocess.check_call(
                         ['sign-file', 'SHA256SUMS'],
                         cwd=offline_repo_path_parent,
-                        stdout=DEVNULL
+                        stdout=subprocess.DEVNULL
                     )
 
                 # update data

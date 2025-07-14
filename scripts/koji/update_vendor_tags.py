@@ -1,12 +1,11 @@
 #!/bin/env python
 from __future__ import print_function
+
 import argparse
-import subprocess
 import json
 import os
 import re
-
-DEVNULL = open(os.devnull, 'w')
+import subprocess
 
 XS_buildhosts = [
     '1b68968c4e4e',
@@ -59,7 +58,7 @@ def update_vendor_tag_for_build(build, is_bootstrap=False):
             raise Exception("No RPM found for build %s" % build)
 
     # get vendor information
-    output = subprocess.check_output(['rpm', '-qp', rpm_path, '--qf', '%{vendor};;%{buildhost}'], stderr=DEVNULL)
+    output = subprocess.check_output(['rpm', '-qp', rpm_path, '--qf', '%{vendor};;%{buildhost}'], stderr=subprocess.DEVNULL)
     vendor, buildhost = output.split(';;')
     package = re.search('/packages/([^/]+)/', rpm_path).group(1)
 

@@ -1,9 +1,11 @@
 #!/bin/env python2
 from __future__ import print_function
+
 import argparse
+import glob
 import os
 import subprocess
-import glob
+
 
 def get_srpm_info(srpmpath):
     return subprocess.check_output(['rpm', '-qp', srpmpath, '--qf', '%{name};;%{nvr}']).split(';;')
@@ -22,8 +24,6 @@ def main():
     parser.add_argument('--owner', help='owner for the package(s)', default='kojiadmin')
     parser.add_argument('--create-build', help='create the build even if there\'s no SRPM', action='store_true', default=False)
     args = parser.parse_args()
-
-    DEVNULL = open(os.devnull, 'w')
 
     srpm_directory = os.path.abspath(check_dir(args.srpm_directory))
     rpm_directory = os.path.abspath(check_dir(args.rpm_directory))
