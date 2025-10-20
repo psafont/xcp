@@ -80,10 +80,11 @@ def check_commit_is_available_remotely(dirpath, sha, target, warn):
 
 def get_repo_and_commit_info(dirpath):
     with cd(dirpath):
-        remote = subprocess.check_output(['git', 'config', '--get', 'remote.origin.url']).decode().strip()
+        remote = subprocess.check_output(['git', 'config', '--get', 'branch.master.remote']).decode().strip()
+        remote_url = subprocess.check_output(['git', 'config', '--get', f'remote.{remote}.url']).decode().strip()
         # We want the exact hash for accurate build history
         hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
-    return remote, hash
+    return remote_url, hash
 
 def koji_url(remote, hash):
     if remote.startswith('git@'):
@@ -91,7 +92,7 @@ def koji_url(remote, hash):
     elif remote.startswith('https://'):
         remote = 'git+' + remote
     else:
-        raise Exception("Unrecognized remote URL")
+        raise Exception(f"Unrecognized remote URL: {remote}")
     return remote + "?#" + hash
 
 @contextmanager
