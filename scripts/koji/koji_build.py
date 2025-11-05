@@ -280,6 +280,9 @@ def main():
         remote, hash = get_repo_and_commit_info(git_repos[0])
         if test_build or pre_build or commit_id:
             clean_old_branches(git_repos[0])
+            user = input(f'About to push {commit_id} {target} {test_build} {pre_build} to {git_repos[0]} [Y/n]')
+            if user.lower() in ["n", "no"]:
+               exit(0)
             hash = push_bumped_release(git_repos[0], target, test_build, pre_build, commit_id)
         else:
             check_commit_is_available_remotely(git_repos[0], hash, None if is_scratch else target, args.force)
@@ -298,6 +301,8 @@ def main():
             remote, hash = get_repo_and_commit_info(d)
             if test_build or pre_build or commit_id:
                 clean_old_branches(d)
+                if user.lower() in ["n", "no"]:
+                    exit(0)
                 hash = push_bumped_release(d, target, test_build, pre_build, commit_id)
             else:
                 check_commit_is_available_remotely(d, hash, None if is_scratch else target, args.force)
