@@ -7,6 +7,7 @@ import subprocess
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
+from urllib.parse import urlparse, urlunparse
 
 try:
     from specfile import Specfile
@@ -88,12 +89,24 @@ def get_repo_and_commit_info(dirpath):
 
 def koji_url(remote, hash):
     if remote.startswith('git@'):
-        remote = re.sub(r'git@(.+):', r'git+https://\1/', remote)
-    elif remote.startswith('https://'):
-        remote = 'git+' + remote
+        remote = remote[4:]
+
+    try:
+        url = urlparse(remote)
+    except ValueError:
+        raise Exception(f"Unrecognized remote URL: {remote}")
+
+    if url.scheme == 'https':
+        url = url._replace(scheme='git+https')
+    elif url.scheme == 'github.com':
+        # urlparse is not great at rejecting invalid urls ...
+        url = url._replace(path=f"{url.scheme}/{url.path}", scheme='git+https')
     else:
         raise Exception(f"Unrecognized remote URL: {remote}")
-    return remote + "?#" + hash
+
+    remote = urlunparse(url) + "?#" + hash
+
+    return remote
 
 @contextmanager
 def local_branch(branch):
